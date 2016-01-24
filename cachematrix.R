@@ -1,17 +1,37 @@
-## Put comments here that give an overall description of what your
-## functions do
+## These functions used together can demonstrate how lexical scoping rules in R can 
+## be used to store (cache) data for future retrieval.  This can be useful for storing
+## the results of computationally expensive calculations for speedy retrieval.
 
-## Write a short comment describing this function
-## Here is my update.
+## The makeCacheMatrix function returns a list in an environment with functions which can be 
+## used to set and get a matrix and its cached inverse.
 
-makeCacheMatrix <- function(x = matrix()) {
-  
-
+makeCacheMatrix <- function(m = matrix()) {
+  i <- NULL
+  set <- function(y) {
+    m <<- y
+    i <<- NULL
+  }
+  get <- function() m
+  setinverse <- function(inverse) i <<- inverse
+  getinverse <- function() i
+  list(set = set, get = get,
+       setinverse = setinverse,
+       getinverse = getinverse)
 }
 
-
-## Write a short comment describing this function
+## The cacheSolve function takes a special list returned by makeCacheMatrix as an argument 
+## and either returns a matrix's cached inverse or if its not yet been calculated, calculates 
+## it and then stores it.
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+  i <- x$getinverse()
+  if(!is.null(i)) {
+    message("getting cached data")
+    return(i)
+  }
+  data <- x$get()
+  i <- solve(data, ...)
+  x$setinverse(i)
+  i
 }
+
